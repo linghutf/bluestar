@@ -1,0 +1,1 @@
+/usr/bin/c++      CMakeFiles/note.dir/note.cc.o  -o note -rdynamic -lsqlite3 

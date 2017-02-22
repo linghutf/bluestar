@@ -1,0 +1,32 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/linghutf/gitwork/bluestar/fanhao/note.cc
+stdio.h
+-
+stdlib.h
+-
+string.h
+-
+time.h
+-
+string
+-
+vector
+-
+iostream
+-
+iomanip
+-
+algorithm
+-
+memory
+-
+sqlite3.h
+-
+
