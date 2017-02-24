@@ -30,3 +30,29 @@ update xx set degree=5 where topic='my';
 ```
 delete from xx where topic='yy';
 ```
+
+## 使用sqlcipher加密数据库
+
+- 加密
+```
+sqlcipher plaintext.db
+
+ATTACH DATABASE 'enc.db' AS encrypted KEY '_your_key_';
+
+SELECT sqlcipher_export('encrypted');
+
+DETACH DATABASE enc;
+```
+
+- 解密使用`PRAGMA key='_your_key_'`
+
+- 解密到普通数据库
+```
+PRAGMA key = '_your_key_';
+
+ATTACH DATABASE 'plaintext.db'AS plaintext KEY '';
+
+SELECT sqlcipher_export('plaintext');
+
+DETACH DATABASE plaintext;
+```

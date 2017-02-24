@@ -358,7 +358,7 @@ void DataBase::list_all_tasks(std::string const & date, int num, std::vector<std
         snprintf(snum,16,"%d",num);
         std::string sql = "SELECT * FROM movie WHERE pressDate<="+sld+" AND finishDate == 0 ORDER BY pressDate asc limit 0,"+snum+";";
 
-        std::cerr<<"sql:\n"<<sql<<"\n\n";
+        //std::cerr<<"sql:\n"<<sql<<"\n\n";
         int nrow,ncol;
         char **azResult;
         int rc = sqlite3_get_table(db_, sql.c_str(), &azResult, &nrow, &ncol, &zErrMsg_);
