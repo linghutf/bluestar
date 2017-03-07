@@ -1,4 +1,4 @@
-# Install script for directory: /home/linghutf/gitwork/bluestar/fanhao
+# Install script for directory: /home/linghutf/gitwork/bluestar/note
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -40,5 +40,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/linghutf/gitwork/bluestar/fanhao/build/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/linghutf/gitwork/bluestar/note/build/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

@@ -6,9 +6,9 @@
 
 #IncludeRegexTransform: 
 
-/home/linghutf/gitwork/bluestar/fanhao/handler.cc
+/home/linghutf/gitwork/bluestar/note/handler.cc
 handler.hh
-/home/linghutf/gitwork/bluestar/fanhao/handler.hh
+/home/linghutf/gitwork/bluestar/note/handler.hh
 stdlib.h
 -
 string.h
@@ -16,7 +16,7 @@ string.h
 sstream
 -
 
-/home/linghutf/gitwork/bluestar/fanhao/handler.hh
+/home/linghutf/gitwork/bluestar/note/handler.hh
 stdio.h
 -
 fstream
@@ -32,9 +32,9 @@ algorithm
 memory
 -
 item.hh
-/home/linghutf/gitwork/bluestar/fanhao/item.hh
+/home/linghutf/gitwork/bluestar/note/item.hh
 
-/home/linghutf/gitwork/bluestar/fanhao/item.hh
+/home/linghutf/gitwork/bluestar/note/item.hh
 stdint.h
 -
 time.h
@@ -44,7 +44,7 @@ string
 map
 -
 
-/home/linghutf/gitwork/bluestar/fanhao/main.cc
+/home/linghutf/gitwork/bluestar/note/main.cc
 handler.hh
-/home/linghutf/gitwork/bluestar/fanhao/handler.hh
+/home/linghutf/gitwork/bluestar/note/handler.hh
 

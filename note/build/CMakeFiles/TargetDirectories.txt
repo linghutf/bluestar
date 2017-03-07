@@ -1,4 +1,4 @@
-/home/linghutf/gitwork/bluestar/fanhao/build/CMakeFiles/rebuild_cache.dir
-/home/linghutf/gitwork/bluestar/fanhao/build/CMakeFiles/edit_cache.dir
-/home/linghutf/gitwork/bluestar/fanhao/build/CMakeFiles/note.dir
-/home/linghutf/gitwork/bluestar/fanhao/build/CMakeFiles/mynote.dir
+/home/linghutf/gitwork/bluestar/note/build/CMakeFiles/rebuild_cache.dir
+/home/linghutf/gitwork/bluestar/note/build/CMakeFiles/edit_cache.dir
+/home/linghutf/gitwork/bluestar/note/build/CMakeFiles/note.dir
+/home/linghutf/gitwork/bluestar/note/build/CMakeFiles/mynote.dir

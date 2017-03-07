@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <stdint.h>
 
 #include <string>
 #include <vector>
@@ -12,17 +13,25 @@
 
 #include <sqlite3.h>
 
+#include <boost/algorithm/string.hpp>
+#include <boost/program_options.hpp>
+
+#define OLD_USE
+
 class Utils{
     public:
+        // yyyy-MM-dd 字符串转换成unix时间戳
         static size_t datetime_to_unix(std::string const & str)
         {
             struct tm time;
             size_t unixtime = 0;
             strptime(str.c_str(),"%Y-%m-%d",&time);
-            unixtime = (size_t)mktime(&time);
+            time_t ut = mktime(&time);
+            unixtime = *(size_t*)&ut;
             return unixtime;
         }
 
+        // yyyy-MM-dd 字符串转换成unix时间戳字符串
         static std::string datetime_to_unix_str(std::string const & str)
         {
             char time[32];
@@ -30,6 +39,7 @@ class Utils{
             return time;
         }
 
+        // unix时间戳转换成yyyy-MM-dd字符串
         static std::string unix_to_datetime_str(size_t n)
         {
             struct tm t = *localtime((time_t*)&n);
@@ -39,6 +49,7 @@ class Utils{
             return s;
         }
 
+        // 判断字符串是否为空
         static bool isNull(std::string const & str)
         {
             return str == "";
@@ -49,11 +60,13 @@ class Utils{
             return str == NULL || strlen(str) == 0;
         }
 
+        // 闰年判断
         static bool isLeapYear(int y)
         {
             return (y%4==0&&y%100!=0)||(y%400==0);
         }
 
+        // 获取当前月份的第一天日期
         static std::string get_cur_mon_datetime()
         {
             time_t now = time(0);
@@ -76,6 +89,7 @@ class Utils{
         }
 };
 
+// 电影系列
 class Item{
     public:
         Item():flag_(false){}
@@ -84,6 +98,13 @@ class Item{
         {
             cur_date_ = Utils::get_cur_mon_datetime();
         }
+
+        Item(const std::string & name, int degree):
+            name_(name),degree_(degree)
+        {
+            cur_date_ = Utils::get_cur_mon_datetime();
+        }
+
         Item(const char * name, int degree, const char * cur_date):
             name_(name),degree_(degree),flag_(false),cur_date_(cur_date){}
 
@@ -99,10 +120,10 @@ class Item{
         }
 
     private:
-        std::string name_;
-        int degree_;
-        bool flag_;
-        std::string cur_date_;
+        std::string name_; //系列名
+        int degree_;       //查询热度
+        bool flag_;        //是否完成查询
+        std::string cur_date_; // 当前查询日期
 };
 
 class Movie{
@@ -147,8 +168,8 @@ class Movie{
         void set_finish_date(std::string & finishDate){finishDate_ = finishDate;finishDate_flag_=true;}
 
 
-        bool has_topic() const {return topic_flag_;}
-        bool has_actor() const {return actor_flag_;}
+        bool has_topic() const {return !Utils::isNull(topic_);}
+        bool has_actor() const {return !Utils::isNull(actor_);}
         bool has_press_date() const {return pressDate_flag_;}
         bool has_finish_date() const {return finishDate_flag_;}
 
@@ -164,10 +185,10 @@ class Movie{
         }
 
     private:
-        std::string topic_;
-        std::string actor_;
-        std::string pressDate_;
-        std::string finishDate_;
+        std::string topic_;              // 电影名
+        std::string actor_;              // 演员
+        std::string pressDate_;          // 出品日期
+        std::string finishDate_;         // 完成日期
         bool topic_flag_;
         bool actor_flag_;
         bool pressDate_flag_;
@@ -310,6 +331,7 @@ void DataBase::drop(const Movie & m)
     if(m.has_topic())
     {
         sql += "topic = '"+m.topic() +"';";
+        std::cout<<sql<<std::endl;
         //std::cerr<<sql<<std::endl;
         int rc = sqlite3_exec(db_,sql.c_str(),0,0,&zErrMsg_);
         if(rc)
@@ -436,12 +458,123 @@ void show_todos( DataBase & db)
     }
 }
 
+
 int main(int argc, char *argv[])
 {
     DataBase db("mylib.db");
     db.intt();
     db.update_items();
 
+#ifndef OLD_USE
+    // 不能使用tuple pair,std::istream无法解析
+    boost::program_options::options_description options("command line options");
+    options.add_options()
+        ("help,h","-h,--help")
+        ("add,a",boost::program_options::value<std::vector<std::string> >()->multitoken(),
+         "添加影片 e.g. add abc(片名) who(主演) yyyy-MM-dd(上映日期)")
+        ("uadd,u",boost::program_options::value<std::vector<std::string> >()->multitoken(),
+         "添加影片 e.g. add abc(片名) yyyy-MM-dd(上映日期)")
+        ("drop,d",boost::program_options::value<std::vector<std::string> >()->multitoken(),
+         "完成影片 e.g. drop abc(片名) yyyy-MM-dd(完成日期)")
+        ("find,f",boost::program_options::value<std::string>()->default_value("unknown"),
+         "查找影片 e.g. find abc(片名)")
+        ("list,l",boost::program_options::value<int>()->implicit_value(10),
+         "列出当月未完成影片")
+        ("additem,e",boost::program_options::value<std::vector<std::string> >()->multitoken(),
+         "添加系列 e.g. e abc degree(热度)")
+        ("dropitem,x",boost::program_options::value<std::string>(),
+         "删除系列 e.g. x abc")
+        ("listitem,p",/*boost::program_options::value<uint16_t>()->default_value(10),*/
+         "列出系列");
+        //();
+    boost::program_options::variables_map vmap;
+    // 固定位置解析
+    //boost::program_options::positional_options_description poptd;
+    //poptd.add("add",1);
+
+    /*
+    boost::program_options::store(
+            boost::program_options::command_line_parser(argc,argv).options
+            (options).positional(poptd).run(),vmap);
+    boost::program_options::notify(vmap);
+    */
+    boost::program_options::store(
+            boost::program_options::parse_command_line(argc,argv,options),vmap);
+    boost::program_options::notify(vmap);
+
+    if(vmap.count("help"))
+    {
+        std::cout<<options<<std::endl;
+    }
+    else if(vmap.count("add"))
+    {
+        auto v = vmap["uadd"].as<std::vector<std::string> >();
+        boost::algorithm::to_lower(v[0]);
+        boost::algorithm::to_lower(v[1]);
+        Movie m(v[0],v[1],v[2]);
+        db.insert(m);
+        //std::cout<<"add:"<<vmap["add"].as<std::string>()<<std::endl;
+    }
+    else if(vmap.count("uadd"))
+    {
+        auto v = vmap["uadd"].as<std::vector<std::string> >();
+        boost::algorithm::to_lower(v[0]);
+
+        std::string actor("unknown");
+        Movie m(v[0],actor,v[1]);
+        db.insert(m);
+    }
+    else if(vmap.count("find"))
+    {
+        std::string topic(vmap["find"].as<std::string>());
+        boost::algorithm::to_lower(topic);
+        db.search(topic);
+    }
+    else if(vmap.count("drop"))
+    {
+        Movie m;
+        auto v = vmap["drop"].as<std::vector<std::string> >();
+        std::string topic(v[0]);
+        std::string date(v[1]);
+        boost::algorithm::to_lower(topic);
+        m.set_topic(topic);
+        m.set_finish_date(date);
+        db.drop(m);
+    }
+    else if(vmap.count("list"))
+    {
+        std::vector<std::shared_ptr<Movie> > list;
+
+        db.list_all_tasks("",10,&list);
+
+        for(auto it = list.begin();it!=list.end();++it)
+        {
+            std::cout<<*(*it)<<"\n";
+        }
+    }
+    else if(vmap.count("additem"))
+    {
+        auto v = vmap["additem"].as<std::vector<std::string> >();
+        boost::algorithm::to_lower(v[0]);
+
+        Item item(v[0],atoi(v[1].c_str()));
+        db.add_item(item);
+    }
+    else if(vmap.find("listitem")!=vmap.end())
+    {
+        // TODO
+        show_todos(db);
+    }
+    else if(vmap.count("dropitem"))
+    {
+    }
+    else
+    {
+        std::cerr<<"error arguments!\n";
+    }
+
+
+#else //OLD_USE
     // 根据参数不同调用不同函数
     if(argc==4)
     {
@@ -516,6 +649,7 @@ int main(int argc, char *argv[])
             db.search(argv[2]);
         }
     }
+#endif
     return 0;
 }
 

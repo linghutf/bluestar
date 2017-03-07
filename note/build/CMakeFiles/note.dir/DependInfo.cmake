@@ -4,7 +4,7 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "/home/linghutf/gitwork/bluestar/fanhao/note.cc" "/home/linghutf/gitwork/bluestar/fanhao/build/CMakeFiles/note.dir/note.cc.o"
+  "/home/linghutf/gitwork/bluestar/note/note.cc" "/home/linghutf/gitwork/bluestar/note/build/CMakeFiles/note.dir/note.cc.o"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 
