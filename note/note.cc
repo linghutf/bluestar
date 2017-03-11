@@ -295,11 +295,10 @@ void DataBase::insert(const Movie & m)
     std::string sql;
     if(m.has_finish_date())
     {
-        sql = "INSERT INTO movie values('"+m.topic()+"','"+m.actor()+"',"+Utils::datetime_to_unix_str(m.press_date())
-            +","+Utils::datetime_to_unix_str(m.finish_date())+");";
+        sql = "INSERT INTO movie values('"+m.topic()+"','"+m.actor()+"',"+Utils::datetime_to_unix_str(m.press_date())+","
+            +Utils::datetime_to_unix_str(m.finish_date())+");";
     }else{
-        sql = "INSERT INTO movie values('"+m.topic()+"','"+m.actor()+"',"+Utils::datetime_to_unix_str(m.press_date())
-            +",0);";
+        sql = "INSERT INTO movie values('"+m.topic()+"','"+m.actor()+"',"+Utils::datetime_to_unix_str(m.press_date())+",0);";
     }
     std::cerr<<sql<<"\n";
     int rc = sqlite3_exec(db_,sql.c_str(),0,0,&zErrMsg_);
@@ -378,7 +377,7 @@ void DataBase::list_all_tasks(std::string const & date, int num, std::vector<std
 
         char snum[16];
         snprintf(snum,16,"%d",num);
-        std::string sql = "SELECT * FROM movie WHERE pressDate<="+sld+" AND finishDate == 0 ORDER BY pressDate asc limit 0,"+snum+";";
+        std::string sql = "SELECT topic,actor,pressDate FROM movie WHERE pressDate<="+sld+" AND finishDate == 0 ORDER BY pressDate asc limit 0,"+snum+";";
 
         //std::cerr<<"sql:\n"<<sql<<"\n\n";
         int nrow,ncol;
@@ -414,11 +413,12 @@ void DataBase::list_all_tasks(std::string const & date, int num, std::vector<std
     }
 }
 
+// 模糊搜索
 void DataBase::search(const std::string & topic)
 {
     int nrow=0,ncol=0;
     char **azResult;
-    std::string sql = "select * from movie where topic='"+topic+"';";
+    std::string sql = "select topic,actor,pressDate from movie where finishDate == 0 AND topic LIKE '%"+topic+"%' ORDER BY pressDate desc;";
     // 包含表头一行的数据
     int rc = sqlite3_get_table(db_, sql.c_str(), &azResult, &nrow, &ncol, &zErrMsg_);
     if(rc)
@@ -435,13 +435,17 @@ void DataBase::search(const std::string & topic)
         printf("\n");
         for(i=1;i<=nrow;++i)
         {
+            size_t n = std::atol(azResult[i*ncol+2]);
+            printf("%-18s%-18s%-18s",azResult[i*ncol],azResult[i*ncol+1],Utils::unix_to_datetime_str(n).c_str());
+            /*
             for(int j=0;j<ncol;++j)
             {
                 printf("%-18s",azResult[i*ncol+j]);
                 //delete azResult[i*ncol+j];
             }
+            */
+            printf("\n");
         }
-        printf("\n");
         //delete azResult;
     }
 }
