@@ -418,7 +418,7 @@ void DataBase::search(const std::string & topic)
 {
     int nrow=0,ncol=0;
     char **azResult;
-    std::string sql = "select topic,actor,pressDate from movie where finishDate == 0 AND topic LIKE '%"+topic+"%' ORDER BY pressDate desc;";
+    std::string sql = "select topic,actor,pressDate,finishDate from movie where topic LIKE '%"+topic+"%' COLLATE BOCASE ORDER BY pressDate desc;";
     // 包含表头一行的数据
     int rc = sqlite3_get_table(db_, sql.c_str(), &azResult, &nrow, &ncol, &zErrMsg_);
     if(rc)
@@ -436,7 +436,8 @@ void DataBase::search(const std::string & topic)
         for(i=1;i<=nrow;++i)
         {
             size_t n = std::atol(azResult[i*ncol+2]);
-            printf("%-18s%-18s%-18s",azResult[i*ncol],azResult[i*ncol+1],Utils::unix_to_datetime_str(n).c_str());
+            size_t left = std::atol(azResult[i*ncol+3]);
+            printf("%-18s%-18s%-18s%-10s",azResult[i*ncol],azResult[i*ncol+1],Utils::unix_to_datetime_str(n).c_str(),Utils::unix_to_datetime_str(left).c_str());
             /*
             for(int j=0;j<ncol;++j)
             {
